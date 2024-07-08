@@ -94,6 +94,8 @@ plugins:
           kind: integer
         - name: aws_credentials
           kind: object
+        - name: rest_method
+          kind: string
       config:
         api_url: https://earthquake.usgs.gov/fdsnws
         records_path: "$.features[*]"

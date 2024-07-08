@@ -143,6 +143,14 @@ class TapRestApiMsdk(Tap):
             description="the base url/endpoint for the desired api",
         ),
         th.Property(
+            "rest_method",
+            th.StringType,
+            required=False,
+            allowed_values=[None, "GET", "POST"],
+            default="GET",
+            description="HTTP REST method: GET or POST",
+        ),
+        th.Property(
             "auth_method",
             th.StringType,
             default="no_auth",
@@ -535,6 +543,7 @@ class TapRestApiMsdk(Tap):
                     backoff_time_extension=self.config.get("backoff_time_extension"),
                     store_raw_json_message=self.config.get("store_raw_json_message"),
                     authenticator=self._authenticator,
+                    rest_method=self.config.get("rest_method")
                 )
             )
 
@@ -576,6 +585,7 @@ class TapRestApiMsdk(Tap):
 
         # Initialise Variables
         auth_method = self.config.get("auth_method", "")
+        use_request_body_not_params=self.config.get("use_request_body_not_params")
         self.http_auth = None
 
         if auth_method and not auth_method == "no_auth":
@@ -584,13 +594,16 @@ class TapRestApiMsdk(Tap):
 
             headers.update(getattr(self._authenticator, "auth_headers", {}))
             params.update(getattr(self._authenticator, "auth_params", {}))
-
-        r = requests.get(
-            self.config["api_url"] + path,
+        
+        r = requests.request(
+            method=self.config.get("rest_method"),
+            url=self.config["api_url"] + path,
             auth=self.http_auth,
-            params=params,
             headers=headers,
+            params=None if use_request_body_not_params else params,
+            json=params if use_request_body_not_params else None
         )
+
         if r.ok:
             records = extract_jsonpath(records_path, input=r.json())
         else:

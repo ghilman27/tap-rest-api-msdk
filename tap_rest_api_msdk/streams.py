@@ -71,6 +71,7 @@ class DynamicStream(RestApiStream):
         backoff_time_extension: Optional[int] = 0,
         store_raw_json_message: Optional[bool] = False,
         authenticator: Optional[object] = None,
+        rest_method: Optional[str] = "GET"
     ) -> None:
         """Class initialization.
 
@@ -149,6 +150,7 @@ class DynamicStream(RestApiStream):
         self.backoff_param = backoff_param
         self.backoff_time_extension = backoff_time_extension
         self.store_raw_json_message = store_raw_json_message
+        self.rest_method = rest_method
         if self.use_request_body_not_params:
             self.prepare_request_payload = get_url_params_styles.get(  # type: ignore
                 pagination_response_style, self._get_url_params_page_style
