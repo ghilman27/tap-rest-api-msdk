@@ -151,6 +151,13 @@ class TapRestApiMsdk(Tap):
             description="HTTP REST method: GET or POST",
         ),
         th.Property(
+            "max_retries",
+            th.IntegerType,
+            required=False,
+            default=5,
+            description="Maximum number of retries if Error Too Many Requests is received",
+        ),
+        th.Property(
             "auth_method",
             th.StringType,
             default="no_auth",
@@ -543,7 +550,8 @@ class TapRestApiMsdk(Tap):
                     backoff_time_extension=self.config.get("backoff_time_extension"),
                     store_raw_json_message=self.config.get("store_raw_json_message"),
                     authenticator=self._authenticator,
-                    rest_method=self.config.get("rest_method")
+                    rest_method=self.config.get("rest_method"),
+                    max_retries=self.config.get("max_retries"),
                 )
             )
 

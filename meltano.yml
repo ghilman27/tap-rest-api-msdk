@@ -96,6 +96,8 @@ plugins:
           kind: object
         - name: rest_method
           kind: string
+        - name: max_retries
+          kind: integer
       config:
         api_url: https://earthquake.usgs.gov/fdsnws
         records_path: "$.features[*]"

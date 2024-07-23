@@ -71,7 +71,8 @@ class DynamicStream(RestApiStream):
         backoff_time_extension: Optional[int] = 0,
         store_raw_json_message: Optional[bool] = False,
         authenticator: Optional[object] = None,
-        rest_method: Optional[str] = "GET"
+        rest_method: Optional[str] = "GET",
+        max_retries: Optional[int] = 5
     ) -> None:
         """Class initialization.
 
@@ -151,6 +152,7 @@ class DynamicStream(RestApiStream):
         self.backoff_time_extension = backoff_time_extension
         self.store_raw_json_message = store_raw_json_message
         self.rest_method = rest_method
+        self.max_retries = max_retries
         if self.use_request_body_not_params:
             self.prepare_request_payload = get_url_params_styles.get(  # type: ignore
                 pagination_response_style, self._get_url_params_page_style
@@ -214,6 +216,14 @@ class DynamicStream(RestApiStream):
         # and try to exit early on its own.
         # This only has effect on streams whose `replication_key` is `updated_at`.
         self.use_fake_since_parameter = False
+
+    def backoff_max_tries(self) -> int:
+        """The number of attempts before giving up when retrying requests.
+
+        Returns:
+            Number of max retries.
+        """
+        return self.max_retries
 
     @property
     def http_headers(self) -> dict:
